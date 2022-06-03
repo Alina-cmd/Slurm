@@ -2,6 +2,7 @@ package gometr
 
 import (
 	"fmt"
+	// "sync"
 	"time"
 )
 
@@ -20,7 +21,8 @@ type Checker struct {
 	items []Checkable
 }
 
-func (c *Checker) Add(item Checkable) {
+func (c *Checker) Add(item Checkable, ch chan int) {
+	ch <- 1
 	c.items = append(c.items, item)
 }
 
@@ -34,16 +36,13 @@ func (c Checker) String() string {
 	return str
 }
 
-func (c Checker) Check() {
+func (c *Checker) Run(ch chan int) {
 	ticker := time.NewTicker(5 * time.Second)
 	for tick := range ticker.C {
-		run(tick, c)
-	}
-}
+		for _, val := range c.items {
+			go check(tick, val)
 
-func run(tick time.Time, checker Checker) {
-	for _, val := range checker.items {
-		go check(tick, val)
+		}
 	}
 
 }
@@ -51,5 +50,13 @@ func run(tick time.Time, checker Checker) {
 func check(tick time.Time, client Checkable) {
 	if !client.Health() {
 		fmt.Printf("%s не работает, время: %v\n", client.GetID(), tick)
+	}
+}
+
+func (c *Checker) Check() {
+	for _, val := range c.items {
+		if !val.Health() {
+			fmt.Printf("%s не работает\n", val.GetID())
+		}
 	}
 }

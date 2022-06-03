@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"hw_m4_03/gometr"
 	"time"
 )
@@ -16,19 +15,23 @@ func main() {
 	// }
 
 	che := new(gometr.Checker)
-	che.Add(gometr.NewGoMetrClient("aurl/lalal/client", 255))
-	che.Add(gometr.NewGoMetrClient("burl/lalal/client", 246))
-	che.Add(gometr.NewGoMetrClient("durl/lalal/client", 256))
-	che.Add(gometr.NewGoMetrClient("eurl/lalal/client", 253))
 
-	fmt.Print(che)
-	fmt.Println()
+	// fmt.Print(che)
+	// fmt.Println()
 
-	go che.Check()
+	ch := make(chan int)
 
-	time.Sleep(2 * time.Second)
+	go che.Run(ch)
 
-	che.Add(gometr.NewGoMetrClient("curl/lalal/client", 259))
+	che.Add(gometr.NewGoMetrClient("aurl/lalal/client", 255), ch)
+	che.Add(gometr.NewGoMetrClient("burl/lalal/client", 246), ch)
+	che.Add(gometr.NewGoMetrClient("durl/lalal/client", 256), ch)
+	che.Add(gometr.NewGoMetrClient("eurl/lalal/client", 253), ch)
+
+	time.Sleep(5 * time.Second)
+
+	che.Add(gometr.NewGoMetrClient("curl/lalal/client", 259), ch)
 
 	time.Sleep(45 * time.Second)
+
 }
