@@ -21,8 +21,7 @@ type Checker struct {
 	items []Checkable
 }
 
-func (c *Checker) Add(item Checkable, ch chan int) {
-	ch <- 1
+func (c *Checker) Add(item Checkable) {
 	c.items = append(c.items, item)
 }
 
@@ -36,7 +35,7 @@ func (c Checker) String() string {
 	return str
 }
 
-func (c *Checker) Run(ch chan int) {
+func (c *Checker) Run() {
 	ticker := time.NewTicker(5 * time.Second)
 	for tick := range ticker.C {
 		for _, val := range c.items {
